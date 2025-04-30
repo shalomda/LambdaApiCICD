@@ -20,7 +20,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore LambdaApiCICD/LambdaApiCICD.csproj
+        run: dotnet restore ./LambdaApiCICD/LambdaApiCICD.csproj
 
       - name: Run tests (optional)
         run: |
@@ -28,7 +28,7 @@ jobs:
           dotnet test --no-build --verbosity normal || echo "No tests found or test project missing – continuing."
 
       - name: Publish Lambda project
-        run: dotnet publish LambdaApiCICDBla/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
+        run: dotnet publish ./LambdaApiCICD/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
 
       - name: List contents of publish folder
         run: |
