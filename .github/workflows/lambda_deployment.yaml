@@ -15,7 +15,7 @@ jobs:
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8'
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore LambdaApiCICD/LambdaApiCICD.csproj
@@ -34,7 +34,7 @@ jobs:
           zip -r ../lambda.zip .
 
       - name: Upload to AWS Lambda
-        uses: aws-actions/aws-cli-action@v1
+        uses: aws-actions/aws-cli-action@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
