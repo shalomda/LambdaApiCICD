@@ -28,7 +28,12 @@ jobs:
           dotnet test --no-build --verbosity normal || echo "No tests found or test project missing – continuing."
 
       - name: Publish Lambda project
-        run: dotnet publish LambdaApiCICD/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
+        run: dotnet publish LambdaApiCICDBla/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
+
+      - name: List contents of publish folder
+        run: |
+          echo "Checking contents of publish folder..."
+          ls -la publish
 
       - name: Zip publish folder
         id: zip
