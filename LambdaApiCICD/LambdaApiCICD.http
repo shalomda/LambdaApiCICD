@@ -1,0 +1,6 @@
+@LambdaApiCICD_HostAddress = http://localhost:5211
+
+GET {{LambdaApiCICD_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
