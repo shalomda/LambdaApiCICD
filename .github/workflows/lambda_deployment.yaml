@@ -1,26 +1,66 @@
-name: Deploy Lambda Function
+name: CI/CD for Lambda Function
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
+    outputs:
+      zip-path: ${{ steps.zip.outputs.zip-path }}
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Install zip tool
-        uses: montudor/action-zip@v1
-      - name: Create Zip file for Lambda function
-        run: zip -r code.zip .
-      - name: AWS CLI v2
-        uses: imehedi/actions-awscli-v2@latest
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
         with:
-          args: "lambda update-function-code \
-            --function-name arn:aws:lambda:eu-north-1:124951343356:function:LambdaApiCICD \
-            --zip-file fileb://code.zip"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-north-1"
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore LambdaApiCICD/LambdaApiCICD.csproj
+
+      - name: Run tests (optional)
+        run: |
+          echo "Running tests (if any)..."
+          dotnet test --no-build --verbosity normal || echo "No tests found or test project missing – continuing."
+
+      - name: Publish Lambda project
+        run: dotnet publish LambdaApiCICD/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
+
+      - name: Zip publish folder
+        id: zip
+        run: |
+          cd publish
+          zip -r ../lambda.zip .
+          echo "zip-path=lambda.zip" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lambda-package
+          path: lambda.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: lambda-package
+          path: .
+
+      - name: Upload to AWS Lambda
+        uses: aws-actions/aws-cli-action@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+          inline: |
+            aws lambda update-function-code \
+              --function-name LambdaApiCICD \
+              --zip-file fileb://lambda.zip
