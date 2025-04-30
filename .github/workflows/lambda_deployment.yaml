@@ -1,7 +1,3 @@
-
-yaml
-Copy
-Edit
 name: CI/CD for Lambda Function
 
 on:
