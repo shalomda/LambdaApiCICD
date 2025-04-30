@@ -5,8 +5,8 @@
   "function-runtime": "dotnet8",
   "function-memory-size": 256,
   "function-timeout": 120,
-  "function-handler": "LambdaApiCICD::LambdaApiCICD.Function::FunctionHandler",
+  "function-handler": "LambdaApiCICD",
   "function-name": "LambdaApiCICD",
-  "environment-variables": "ASPNETCORE_ENVIRONMENT=Development;SOMETHING=SomeValue",
+  "environment-variables": "ASPNETCORE_ENVIRONMENT=Development",
   "function-url-enable": true
 }
