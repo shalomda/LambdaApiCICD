@@ -1,12 +1,18 @@
-name: Deploy Lambda Function
+
+yaml
+Copy
+Edit
+name: CI/CD for Lambda Function
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
+    outputs:
+      zip-path: ${{ steps.zip.outputs.zip-path }}
 
     steps:
       - name: Checkout code
@@ -15,7 +21,7 @@ jobs:
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Restore dependencies
         run: dotnet restore LambdaApiCICD/LambdaApiCICD.csproj
@@ -29,12 +35,31 @@ jobs:
         run: dotnet publish LambdaApiCICD/LambdaApiCICD.csproj -c Release -o ./publish --self-contained false
 
       - name: Zip publish folder
+        id: zip
         run: |
           cd publish
           zip -r ../lambda.zip .
+          echo "zip-path=lambda.zip" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lambda-package
+          path: lambda.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: lambda-package
+          path: .
 
       - name: Upload to AWS Lambda
-        uses: aws-actions/aws-cli-action@v2
+        uses: aws-actions/aws-cli-action@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
