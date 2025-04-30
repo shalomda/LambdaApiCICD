@@ -35,6 +35,10 @@ jobs:
         run: |
           cd publish
           zip -r ../lambda.zip .
+          if [ ! -f ../lambda.zip ]; then
+            echo "Error: lambda.zip was not created."
+            exit 1
+          fi
           echo "zip-path=lambda.zip" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
