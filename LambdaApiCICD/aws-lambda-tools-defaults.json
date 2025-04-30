@@ -1,0 +1,12 @@
+{
+  "profile": "default",
+  "region": "eu-north-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 120,
+  "function-handler": "LambdaApiCICD::LambdaApiCICD.Function::FunctionHandler",
+  "function-name": "LambdaApiCICD",
+  "environment-variables": "ASPNETCORE_ENVIRONMENT=Development;SOMETHING=SomeValue",
+  "function-url-enable": true
+}
