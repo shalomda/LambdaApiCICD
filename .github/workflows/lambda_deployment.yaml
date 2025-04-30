@@ -57,10 +57,10 @@ jobs:
       - name: Upload to AWS Lambda
         uses: imehedi/actions-awscli-v2@latest
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
-          inline: |
-            aws lambda update-function-code \
-              --function-name LambdaApiCICD \
-              --zip-file fileb://lambda.zip
+          args: "lambda update-function-code \
+            --function-name arn:aws:lambda:eu-north-1:124951343356:function:LambdaApiCICD \
+            --zip-file fileb://lambda.zip"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-north-1"
